@@ -1,0 +1,53 @@
+# Ignore large model folders
+**/cmdstan*/
+**/output/
+**/__pycache__/
+**/.ipynb_checkpoints/
+
+# Ignore specific file types
+*.csv
+*.json
+*.pdf
+#*.stan
+
+# macOS junk
+.DS_Store
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Stan model outputs (directories with sample files etc.)
+bnn_regression_models/*
+bnn_classification_models/*
+bnn_prior_models/*
+!bnn_regression_models/*.stan
+!bnn_classification_models/*.stan
+!bnn_prior_models/*.stan
+
+
+
+# You can also ignore compiled binaries or temp output folders
+*.csv
+*.npz
+*.json
+*.rds
+*.log
+*.aux
+*.out
+*.fls 
+*.fdb_latexmk
+*.synctex.gz
+
+big_files.txt
+*.png
+
+bnn_priors/cmdstan/
+bnn_models/
+csv_files/
+figures/
+individual_notebooks/
+local_files/

@@ -1,0 +1,39 @@
+Status 08.25:
+Forsøkt å skrive et avnsitt om de såkalte "Dirichlet scale mixture" priorene. Håper det faller i smak.
+
+Liste over ting som bør gjøres:
+
+Dirichlet priorene virker å faktisk fungere bedre med slike interaksjoner, i allefall når N ikke er veldig stor. Prøv å simuler fra funksjonen som Geir og Aleksandir kom frem til fra Abalone datasettet, det kan gi oss mer lignende data som kan brukes for å styrke vår hypotese om at Dirichlet komponenten gjør priorene mer robuste når det er mye interaksjoner.
+
+Vi har plot av konvergens vs feil i de ulike testpunktene i konvergens koden. Det kan være et aktuelt plot, kanskje enda bedre enn Rhat vs RMSE plottet.
+
+Vi må finne CRPS for Friedman og Abalone dataen, selv om det er tidkrevende. Prøv å regn det ut når du ikke sampler noe annet.
+
+En siste ting kan være å se på bias variansen, eventuelt øke den for å gjøre bias leddene mindre informative.
+
+Vi kan vurdere å ta med SPSL og Normal-Gamma priorer, men jeg ville prøvd med Dirichlet-Laplace prioren før vi bruker de andre. Det krever i så fall et nytt Stan script.
+
+
+Status 29.08.2025:
+Jeg har nå skrevet inn Proposition 1 og 2 og teoremer 1 og 2, samt beviser for de alle. Det som mangler er forventning og varians for både proposition 2 og teorem 2. Se chat med ChatGPT, hvor den nyeste meldingen med A gjelder proposition 1 og B gjelder teorem 2. Jeg tror hvis vi får inn forventning og varians her så har vi kommet langt!
+Jeg kunne godt tenkt meg å fått noen til å se over bevisene mine. Spesielt der hvor jeg;
+-Ekspanderer til en sum
+-Bytter sum og integral
+-Bruker analytisk kontinuering
+Dersom disse sitter tror jeg jaggu det blir artikkel.
+
+
+Det som da altså må gjøres fremover, er å lage en ryddig og fin Overleaf. Først må forventning og varians for Proposition 1 og Teorem 2 inn. Etter det handler mye om å tolke resultatene og å skrive en god artikkel som forteller en historie og selger poengene godt!
+
+En figur som ville gjort seg bra, er den som nå er av fordelingen til kappa(ligger i kappa.ipynb). Jeg tror vi her kunne testet for forskjellige frihetsgrader og verdier for a (altså konstanten foran den tilfeldige skalaen). Kanskje vi også burde simulere litt, det er litt vanskelig å vite hvordan q-leddet oppfører seg. Det går jo litt hånd i hånd med tolkningen av ting, så det sampsillet får vi vel til.
+
+05.09.2025:
+
+Et plot som kunne vært kult å ha med er kappa for prior og posterior. Jeg bruker Friedman med N=200 for å gjøre dette. Jeg kan bruke modellene for regresjon direkte, men må kjøre prior modellene på nytt. I tillegg må jeg regne ut q to ganger, en gang for prior modellen og en gang for posterior modellen.
+
+Her er det som nå må gjøres:
+Klassifiseringen fro Dirichlet Student T må kjøres om igjen for både Relu og Tanh, for både Moons og Breastcancer. Nå skaleres ingen med p, alle regulariserer og alle bruker tau. Vi legger det rett inn i resultatene, og oppdaterer Overleaf.
+
+Deretter vil jeg ha fine plot for prior/posterior. Det er egentlig på plass, men du må "rydde opp" i plottene.
+
+Deretter kan vi se på de siste utregningene som nevnt tidligere.

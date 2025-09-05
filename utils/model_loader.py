@@ -1,0 +1,133 @@
+import os
+import glob
+from cmdstanpy import from_csv
+
+def load_fit(model_glob_path):
+    files = sorted(glob.glob(model_glob_path))
+    if not files:
+        print(f"[WARNING] No files matched: {model_glob_path}")
+        return None
+    return from_csv(path=files, method='sample')
+
+def get_model_fits(config, results_dir, models=None, include_prior=True, include_posterior=True):
+    """
+    Load CmdStanPy fits for selected models and config.
+
+    Parameters:
+        config (str): Subfolder under each model's csv_files path.
+        models (list[str], optional): Subset of models to load. Defaults to all.
+        include_prior (bool): Whether to load prior fits.
+        include_posterior (bool): Whether to load posterior fits.
+
+    Returns:
+        dict: {model_name: {"prior": fit or None, "posterior": fit or None}}
+    """
+
+    all_model_paths = {
+        "Spike & Slab": ('spike_and_slab_prior', 'spike_and_slab'),
+        "Gaussian": ('gaussian_prior', 'gaussian'),
+        "Horseshoe": ('horseshoe_prior', 'horseshoe'),
+        "Regularized Horseshoe": ('regularized_horseshoe_prior', 'regularized_horseshoe'),
+        "Dirichlet Laplace": ('dirichlet_laplace_prior', 'dirichlet_laplace'),
+        "Dirichlet Horseshoe": ('dirichlet_horseshoe_prior', 'dirichlet_horseshoe'),
+        "Dirichlet Horseshoe full": ('dirichlet_horseshoe_prior_full', 'dirichlet_horseshoe_full'),
+        "Dirichlet Student T": ('dirichlet_student_t_prior', 'dirichlet_student_t'),
+        
+        "Gaussian tanh": ('gaussian_tanh_prior', 'gaussian_tanh'),
+        "Regularized Horseshoe tanh": ('regularized_horseshoe_tanh_prior', 'regularized_horseshoe_tanh'),
+        "Dirichlet Horseshoe tanh": ('dirichlet_horseshoe_tanh_prior', 'dirichlet_horseshoe_tanh'),
+        "Dirichlet Student T tanh": ('dirichlet_student_t_tanh_prior', 'dirichlet_student_t_tanh'),
+    }
+
+    # Filter models if a subset is provided
+    if models is not None:
+        all_model_paths = {k: v for k, v in all_model_paths.items() if k in models}
+
+    fits = {}
+
+    for model_name, (prior_dir, post_dir) in all_model_paths.items():
+        entry = {}
+
+        if include_prior:
+            prior_path = os.path.join(results_dir, prior_dir, config, "chain_*.csv")
+            prior_fit = load_fit(prior_path)
+            if prior_fit is not None:
+                entry["prior"] = prior_fit
+
+        if include_posterior:
+            post_path = os.path.join(results_dir, post_dir, config, "chain_*.csv")
+            post_fit = load_fit(post_path)
+            if post_fit is not None:
+                entry["posterior"] = post_fit
+
+        if entry:  # Only add if at least one fit was found
+            fits[model_name] = entry
+
+    return fits
+
+
+
+def extract_weights(fit, var_name="data_to_hidden"):
+    return fit.stan_variable(var_name)
+
+# import glob
+# from cmdstanpy import from_csv
+
+# def load_fit(model_glob_path):
+#     files = sorted(glob.glob(model_glob_path))
+#     return from_csv(path=files, method='sample')
+
+
+
+# def get_all_model_fits():
+#     model_paths = {
+#         "Spike & Slab": ('csv_files/spike_and_slab_prior/spike_and_slab_prior_chain_*.csv',
+#                          'csv_files/spike_and_slab/spike_and_slab_chain_*.csv'),
+#         "Gaussian": ('csv_files/gaussian_prior/gaussian_prior_chain_*.csv',
+#                      'csv_files/gaussian/gaussian_chain_*.csv'),
+#         "Horseshoe": ('csv_files/horseshoe_prior/horseshoe_prior_chain_*.csv',
+#                       'csv_files/horseshoe/horseshoe_chain_*.csv'),
+#         "Regularized Horseshoe": ('csv_files/regularized_horseshoe_prior/regularized_horseshoe_prior_chain_*.csv',
+#                                   'csv_files/regularized_horseshoe/regularized_horseshoe_chain_*.csv'),
+#         "Dirichlet Laplace": ('csv_files/dirichlet_laplace_prior/dirichlet_laplace_prior_chain_*.csv',
+#                               'csv_files/dirichlet_laplace/dirichlet_laplace_chain_*.csv'),
+#         "Dirichlet Horseshoe": ('csv_files/dirichlet_horseshoe_prior/dirichlet_horseshoe_prior_chain_*.csv',
+#                                 'csv_files/dirichlet_horseshoe/dirichlet_horseshoe_chain_*.csv'),
+#     }
+
+#     fits = {}
+#     for model_name, (prior_path, post_path) in model_paths.items():
+#         fits[model_name] = {
+#             "prior": load_fit(prior_path),
+#             "posterior": load_fit(post_path)
+#         }
+#     return fits
+
+# def extract_weights(fit, var_name="data_to_hidden"):
+#     return fit.stan_variable(var_name)
+
+
+# import os
+# import glob
+# from cmdstanpy import from_csv
+
+# def load_fit_from_folder(folder_path):
+#     """
+#     Load a CmdStanPy fit object from a specific folder containing CSV chain files.
+
+#     Parameters:
+#         folder_path (str): Path to the folder containing 'chain_*.csv' files.
+
+#     Returns:
+#         CmdStanMCMC: Loaded fit object.
+#     """
+#     csv_pattern = os.path.join(folder_path, "chain_*.csv")
+#     csv_files = sorted(glob.glob(csv_pattern))
+
+#     if not csv_files:
+#         raise FileNotFoundError(f"No chain_*.csv files found in {folder_path}")
+
+#     return from_csv(path=csv_files, method="sample")
+
+# def extract_weights(fit, var_name="data_to_hidden"):
+#     return fit.stan_variable(var_name)
