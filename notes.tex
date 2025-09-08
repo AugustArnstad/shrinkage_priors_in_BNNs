@@ -32,9 +32,7 @@ En figur som ville gjort seg bra, er den som nå er av fordelingen til kappa(lig
 Et plot som kunne vært kult å ha med er kappa for prior og posterior. Jeg bruker Friedman med N=200 for å gjøre dette. Jeg kan bruke modellene for regresjon direkte, men må kjøre prior modellene på nytt. I tillegg må jeg regne ut q to ganger, en gang for prior modellen og en gang for posterior modellen.
 
 Her er det som nå må gjøres:
-Klassifiseringen fro Dirichlet Student T må kjøres om igjen for både Relu og Tanh, for både Moons og Breastcancer. Regresjonen for Dirichlet Student T må kjøres om igjen for både Relu og Tanh, for både Abalone og Friedman. Nå skaleres ingen med p, alle regulariserer og alle bruker tau. Vi legger det rett inn i resultatene, og oppdaterer Overleaf.
-
-Du burde også kjøre konvergens en gang til. Gjør det for DST, og for alle modeller med N=500, men kjør kun for ett seed, trenger ikke flere. Du bør kopiere over ett av datasettene med N=500, også kjøre, også kan du bare beholde datasettet i den lille mappa til Friedman. Gjør ikke noe det.
+Alle resultater foruten konvergens med N=500 for DHS, Gauss og RHS er kjørt. De ser veldig like ut. Kanskje blir DST og DHS hakket dårligere av å ikke skalere med p, men ikke nok til at jeg tror det har noe å si. Dessuten ser det ut til at DHS/DST er enklere å sparsifye og mer robuste. Tror ikke det er noen vits i å se på konvergensen for Abalone datasettet heller. Det får de andre i så fall si ifra om. Tar vel ikke så lang tid å få til, men ser ikke behovet i første omgang. 
 
 Deretter vil jeg ha fine plot for prior/posterior. Det er egentlig på plass, men du må "rydde opp" i plottene.
 
@@ -45,22 +43,3 @@ Et spørsmål som jeg stiller er om skaleringen med p faktisk har vært bra? Vir
 
 SVAR: Med skaleringen, så får vi jevnt over bedre resultater for Relu DST på moons datasettet, men ikke særlig forskjell på breastcancer. Dette var da litt rart, men kanskje det er fordi datasettet er relativt lite og dermed blir modellen veldig sensitiv? Resultatene som nå ligger inne for relu er med skalering. 
 
-python3 utils/run_all_classification_models.py --model dirichlet_student_t --output_dir results/classification/single_layer/relu/moons ✅
-
-python3 utils/run_all_classification_models.py --model dirichlet_student_t_tanh --output_dir results/classification/single_layer/tanh/moons 🤷🏼‍♂️
-
-python3 utils/run_breastcancer.py --model dirichlet_student_t --output_dir results/classification/single_layer/relu/breastcancer ✅
-
-python3 utils/run_breastcancer.py --model dirichlet_student_t_tanh --output_dir results/classification/single_layer/tanh/breastcancer ✅
-
-python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman ✅
-
-python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman ✅
-
-python3 utils/run_abalone.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/abalone ✅
-
-python3 utils/run_abalone.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/abalone ✅
-
-python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
-
-python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
