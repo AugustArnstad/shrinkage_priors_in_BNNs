@@ -30,7 +30,7 @@ def compute_sparse_rmse_results(seeds, models, all_fits, get_N_sigma, forward_pa
     for seed in seeds:
         N, sigma = get_N_sigma(seed)
         dataset_key = f'Friedman_N{N}_p10_sigma{sigma:.2f}_seed{seed}'
-        path = f"datasets/friedman/{dataset_key}.npz"
+        path = f"datasets/friedman/many/{dataset_key}.npz"
 
         try:
             data = np.load(path)

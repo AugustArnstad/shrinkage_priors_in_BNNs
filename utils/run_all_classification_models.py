@@ -25,7 +25,7 @@ parser.add_argument("--output_dir", type=str, default="results", help="Max numbe
 
 args = parser.parse_args()
 
-data_dir = f"datasets/moons"
+data_dir = f"datasets/moons/many"
 results_dir = args.output_dir #"results/exhaustive"
 
 warmup = args.warmup
