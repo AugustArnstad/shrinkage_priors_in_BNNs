@@ -58,7 +58,6 @@ parameters {
   matrix[H, output_nodes] W_L;
   row_vector[output_nodes] output_bias;
   real<lower=1e-6> sigma;
-  real<lower=1e-6> sigma_hidden;
 }
 
 transformed parameters {
@@ -67,15 +66,15 @@ transformed parameters {
   array[H] vector<lower=0>[P] lambda_tilde;
   for (j in 1:H) {
     for (i in 1:P) {
-      lambda_tilde[j][i] = c_sq[j] * square(lambda[j][i]) /
-                                (c_sq[j] + square(lambda[j][i]) * square(tau));
+      lambda_tilde[j][i] = fmax(1e-12, c_sq[j] * square(lambda[j][i]) /
+                                (c_sq[j] + square(lambda[j][i]) * square(tau)));
     }
   }
 
   matrix[P, H] W_1;
   for (j in 1:H)
     for (i in 1:P)
-      W_1[i, j] = W1_raw[i, j] * sqrt(lambda_tilde[j][i]) * tau;
+      W_1[i, j] = W1_raw[i, j] * fmax(1e-12, sqrt(lambda_tilde[j][i]) * tau);
 
   
   //matrix[N, output_nodes] output = nn_predict(
@@ -90,7 +89,7 @@ model {
     lambda[j] ~ cauchy(0, 1);
   }
   //lambda ~ cauchy(0, 1);
-  tau ~ cauchy(0, square(tau_0));
+  tau ~ cauchy(0, tau_0);
   c_sq ~ inv_gamma(a, b);
   to_vector(W1_raw) ~ normal(0, 1);
 
@@ -98,14 +97,14 @@ model {
   if (L > 1) {
     for (l in 1:(L - 1))
       for (j in 1:H)
-        W_internal[l][, j] ~ normal(0, fmax(1e-12, sigma_hidden));
+        W_internal[l][, j] ~ normal(0, 1);
   }
 
   for (l in 1:L)
     hidden_bias[l] ~ normal(0, 1);
 
   for (j in 1:output_nodes)
-    W_L[, j] ~ normal(0, fmax(1e-12, sigma_hidden));
+    W_L[, j] ~ normal(0, 1);
 
   output_bias ~ normal(0, 1);
   sigma ~ inv_gamma(3, 2); //normal(0, 1);

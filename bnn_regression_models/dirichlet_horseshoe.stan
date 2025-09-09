@@ -81,7 +81,7 @@ transformed parameters {
   matrix[P, H] W_1;
   for (j in 1:H) {
     for (i in 1:P) {
-      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i])) * phi_tilde_data[j][i];
+      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i]) * phi_tilde_data[j][i]);
       W_1[i, j] = stddev * W1_raw[i, j];
     }
   }

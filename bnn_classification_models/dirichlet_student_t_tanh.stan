@@ -50,7 +50,7 @@ data {
 parameters {
   real<lower=1e-6> tau;
   vector<lower=0>[H] c_sq;
-  array[H] vector<lower=0>[P] lambda;
+  array[H] vector<lower=0, upper=50>[P] lambda;
   array[H] simplex[P] phi_data;
 
   matrix[P, H] W1_raw;
@@ -70,8 +70,8 @@ transformed parameters {
 
   for (j in 1:H) {
     for (i in 1:P) {
-      lambda_tilde_data[j][i] = c_sq[j] * square(lambda[j][i]) /
-                                (c_sq[j] + square(lambda[j][i]) * square(tau));
+      lambda_tilde_data[j][i] = fmax(1e-12, c_sq[j] * square(lambda[j][i]) /
+                                (c_sq[j] + square(lambda[j][i]) * square(tau)));
       //phi_tilde_data[j][i] = P * phi_data[j][i];
       phi_tilde_data[j][i] = phi_data[j][i];
     }

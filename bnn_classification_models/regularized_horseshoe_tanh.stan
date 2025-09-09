@@ -60,21 +60,20 @@ parameters {
 }
 
 transformed parameters {
-  //real<lower=1e-6> tau_0 = (1.0 * p_0 / (P - p_0)) / sqrt(N);
-  real<lower=1e-6> tau_0 = 1 / sqrt(N);
+  real<lower=1e-6> tau_0 = (p_0 * 1.0) / (P - p_0) * 1 / sqrt(N);
 
   array[H] vector<lower=0>[P] lambda_tilde;
   for (j in 1:H) {
     for (i in 1:P) {
-      lambda_tilde[j][i] = c_sq[j] * square(lambda[j][i]) /
-                                (c_sq[j] + square(lambda[j][i]) * square(tau));
+      lambda_tilde[j][i] = fmax(1e-12, c_sq[j] * square(lambda[j][i]) /
+                                (c_sq[j] + square(lambda[j][i]) * square(tau)));
     }
   }
 
   matrix[P, H] W_1;
   for (j in 1:H)
     for (i in 1:P)
-      W_1[i, j] = W1_raw[i, j] * sqrt(lambda_tilde[j][i]) * tau;
+      W_1[i, j] = W1_raw[i, j] * fmax(1e-12, sqrt(lambda_tilde[j][i]) * tau);
 
   matrix[N, output_nodes] output = nn_predict(
     X, W_1, W_internal,
@@ -86,7 +85,7 @@ model {
   for (j in 1:H) {
     lambda[j] ~ cauchy(0, 1);
   }
-  tau ~ cauchy(0, square(tau_0));
+  tau ~ cauchy(0, tau_0);
   c_sq ~ inv_gamma(a, b);
   to_vector(W1_raw) ~ normal(0, 1);
 
