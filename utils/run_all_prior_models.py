@@ -36,7 +36,7 @@ N, p = X_train.shape
 seed = 42
 data_type = "prior"
 
-config_name = f"dir_stud_t"
+config_name = f"reg_hs"
 # Sett output-dir
 model_output_dir = os.path.join(args.output_dir, args.model, config_name)
 
