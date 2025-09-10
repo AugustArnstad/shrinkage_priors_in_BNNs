@@ -53,7 +53,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
         
     elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "dirichlet_student_t_no_p":
         stan_data.update({
-            'alpha': 0.001 * np.ones(args.p),
+            'alpha': 0.1 * np.ones(args.p),
             # Disse trengs når vi har med regulariseringen
             'p_0': 4,
             'a': 2.0,
