@@ -68,22 +68,21 @@ transformed parameters {
   real<lower=1e-6> tau_0 = (p_0 * 1.0) / (P - p_0) * 1 / sqrt(N);
 
   array[H] vector<lower=0>[P] lambda_tilde_data;
-  array[H] vector<lower=0>[P] phi_tilde_data;
+  //array[H] vector<lower=0>[P] phi_tilde_data;
 
   for (j in 1:H) {
     for (i in 1:P) {
       lambda_tilde_data[j][i] = fmax(1e-12, c_sq[j] * square(lambda[j][i]) /
                                 (c_sq[j] + square(lambda[j][i]) * square(tau)));
       //phi_tilde_data[j][i] = P * phi_data[j][i];
-      phi_tilde_data[j][i] = phi_data[j][i];
+      //phi_tilde_data[j][i] = phi_data[j][i];
     }
   }
 
   matrix[P, H] W_1;
   for (j in 1:H) {
     for (i in 1:P) {
-      //real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i]) * phi_tilde_data[j][i]);
-      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i]) * phi_tilde_data[j][i]);
+      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i]) * sqrt(phi_data[j][i]));
       W_1[i, j] = stddev * W1_raw[i, j];
     }
   }

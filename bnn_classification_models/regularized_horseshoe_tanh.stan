@@ -15,7 +15,8 @@ functions {
     int output_nodes = cols(W_L);
     array[L] matrix[N, H] hidden;
 
-    hidden[1] = fmax(X * W_1 + rep_vector(1.0, N) * hidden_bias[1], 0);
+    //hidden[1] = fmax(X * W_1 + rep_vector(1.0, N) * hidden_bias[1], 0);
+    hidden[1] = tanh(X * W_1 + rep_vector(1.0, N) * hidden_bias[1]);
 
     if (L > 1) {
       for (l in 2:L)

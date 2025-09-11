@@ -36,76 +36,57 @@ Deretter vil jeg ha fine plot for prior/posterior. Det er egentlig på plass, me
 
 Deretter kan vi se på de siste utregningene som nevnt tidligere.
 
-09.09.2025:
-Kjør alle RHS, DHS, DST på nytt.
 
+
+11.09.2025:
+
+------- Paper plan -------
+1 - Sørg for at alle resultater er riktig. Mangler konvergens.
+2 - Fiks robusthet ✅
+3 - Se om du kan få inn plot av selve nettverkene i Overleaf
+4 - Kjør en strukturell endring på Overleaf slik vi snakket om. Introduser DSM mye tidligere.
+5 - Du må ikke ha phi^2, for da er den ikke Beta fordelt. Du må ha phi.
+6 - Se over beviser og teori, og gå gjennom notasjonen på de.
+7 - Utvikle forventning og varians i teorem 2
+8 - Rydd opp, slik at Geir og Leiv kan lese. 
+
+Jeg tror jeg kommer til å bruke phi, ikke phi^2, da dette faktisk kan komme til å gi enklere uttrykk. Da må dessverre all koden for dirichlet modellene kjøres om igjen... det vil si:
+
+------------------------------------
 Kjøreliste:
-RHS regresjon:
-python3 utils/run_abalone.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/abalone --overwrite ❌
+------------------------------------
+Regresjon:
+DHS: BÅDE FOR MAPPEN MED MANGE OG MED FÅ FILER
+python3 utils/run_all_regression_models.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/friedman --overwrite && python3 utils/run_all_regression_models.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman --overwrite ⏳ 
 
-DHS regresjon: ⏳ Mappen med bare tre filer er kjørt.
-python3 utils/run_all_regression_models.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/friedman --overwrite && python3 utils/run_all_regression_models.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman --overwrite ✅
+python3 utils/run_abalone.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/abalone --overwrite && python3 utils/run_abalone.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/abalone --overwrite 
 
-python3 utils/run_abalone.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/abalone --overwrite && python3 utils/run_abalone.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/abalone --overwrite ❌
+DS-T: BÅDE FOR MAPPEN MED MANGE OG MED FÅ FILER
+python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman --overwrite && python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman --overwrite 
 
-DS-T regresjon: Mappen med bare tre filer er kjørt.
-python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman --overwrite && python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman --overwrite ✅
-
-python3 utils/run_abalone.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/abalone --overwrite && python3 utils/run_abalone.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/abalone --overwrite ❌
+python3 utils/run_abalone.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/abalone --overwrite && python3 utils/run_abalone.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/abalone --overwrite 
 
 ------------------------------------
+Klassifisering:
+DHS:
+python3 utils/run_breastcancer.py --model dirichlet_horseshoe --output_dir results/classification/single_layer/relu/breastcancer --overwrite && python3 utils/run_breastcancer.py --model dirichlet_horseshoe_tanh --output_dir results/classification/single_layer/tanh/breastcancer --overwrite ✅
 
-RHS klassifisering: ✅
-python3 utils/run_breastcancer.py --model regularized_horseshoe --output_dir results/classification/single_layer/relu/breastcancer --overwrite
-python3 utils/run_breastcancer.py --model regularized_horseshoe_tanh --output_dir results/classification/single_layer/tanh/breastcancer --overwrite
-
-DHS klassifisering: ✅
-python3 utils/run_breastcancer.py --model dirichlet_horseshoe --output_dir results/classification/single_layer/relu/breastcancer --overwrite
-python3 utils/run_breastcancer.py --model dirichlet_horseshoe_tanh --output_dir results/classification/single_layer/tanh/breastcancer --overwrite
-
-DS-T klassifisering: ✅
-python3 utils/run_breastcancer.py --model dirichlet_student_t --output_dir results/classification/single_layer/relu/breastcancer --overwrite
-python3 utils/run_breastcancer.py --model dirichlet_student_t_tanh --output_dir results/classification/single_layer/tanh/breastcancer --overwrite
+DS-T:
+python3 utils/run_breastcancer.py --model dirichlet_student_t --output_dir results/classification/single_layer/relu/breastcancer --overwrite && python3 utils/run_breastcancer.py --model dirichlet_student_t_tanh --output_dir results/classification/single_layer/tanh/breastcancer --overwrite ✅
 
 ------------------------------------
+Prior: SJEKK CONFIG FØR DU KJØRER!
+python3 utils/run_all_prior_models.py --model dirichlet_student_t --output_dir results/priors/single_layer/relu/friedman --overwrite ✅ 
 
-Konvergens: ❌ HUSK Å KUN TA MAPPEN MED FÅ DATASETT FOR DISSE.
-python3 utils/run_all_regression_models.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
-python3 utils/run_all_regression_models.py --model regularized_horseshoe --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite
+python3 utils/run_all_prior_models.py --model dirichlet_horseshoe --output_dir results/priors/single_layer/relu/friedman --overwrite ✅
 
+------------------------------------
+Konvergens:
 python3 utils/run_all_regression_models.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
 python3 utils/run_all_regression_models.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite
 
 python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
 python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite
 
-------------------------------------
-
-Priors: ✅
-
-
-
-
-
-
-
-Klassifisering:
-python3 utils/run_all_classification_models.py --model regularized_horseshoe --output_dir results/classification/single_layer/relu/moons --overwrite
-
-python3 utils/run_all_classification_models.py --model regularized_horseshoe_tanh --output_dir results/classification/single_layer/tanh/moons --overwrite
-
-python3 utils/run_breastcancer.py --model regularized_horseshoe --output_dir results/classification/single_layer/relu/breastcancer --overwrite
-
-python3 utils/run_breastcancer.py --model regularized_horseshoe_tanh --output_dir results/classification/single_layer/tanh/breastcancer --overwrite
-
-Regresjon ⏳
-python3 utils/run_all_regression_models.py --model regularized_horseshoe --output_dir results/regression/single_layer/relu/friedman --overwrite && python3 utils/run_all_regression_models.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman --overwrite && python3 utils/run_abalone.py --model regularized_horseshoe --output_dir results/regression/single_layer/relu/abalone --overwrite && python3 utils/run_abalone.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/abalone --overwrite
-
-Prior ❌
-
-Konvergens:
-python3 utils/run_all_regression_models.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
-
-python3 utils/run_all_regression_models.py --model regularized_horseshoe --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite
-
+python3 utils/run_all_regression_models.py --model gaussian_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
 
