@@ -82,11 +82,17 @@ python3 utils/run_all_prior_models.py --model dirichlet_horseshoe --output_dir r
 
 ------------------------------------
 Konvergens:
-python3 utils/run_all_regression_models.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
-python3 utils/run_all_regression_models.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite
+python3 utils/run_all_regression_models.py --model dirichlet_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
+python3 utils/run_all_regression_models.py --model dirichlet_horseshoe --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
 
-python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
-python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite
+python3 utils/run_all_regression_models.py --model dirichlet_student_t_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
+python3 utils/run_all_regression_models.py --model dirichlet_student_t --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
 
-python3 utils/run_all_regression_models.py --model gaussian_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite
+python3 utils/run_all_regression_models.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
+
+python3 utils/run_all_regression_models.py --model regularized_horseshoe --output_dir results/regression/single_layer/relu/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
+
+python3 utils/run_all_regression_models.py --model gaussian_tanh --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
+
+python3 utils/run_all_regression_models.py --model gaussian --output_dir results/regression/single_layer/tanh/friedman/convergence --sample 2000 --warmup 5000 --overwrite ✅
 
