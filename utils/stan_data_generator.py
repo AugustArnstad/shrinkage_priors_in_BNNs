@@ -59,6 +59,15 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'a': 2.0,
             'b': 4.0,
         })
+    
+    elif model_name == "dirichlet_gamma" or model_name == "dirichlet_gamma_tanh":
+        stan_data.update({
+            'alpha': 0.1 * np.ones(args.p),
+            # Disse trengs når vi har med regulariseringen
+            'p_0': 4,
+            'a': 2.0,
+            'b': 4.0,
+        })
 
     elif model_name == "dirichlet_laplace":
         stan_data.update({
