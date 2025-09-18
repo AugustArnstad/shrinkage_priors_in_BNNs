@@ -63,6 +63,7 @@ def build_pytorch_model_from_stan_sample(
     if task == "regression":
         W2 = fit.stan_variable("W_L")[sample_idx]              # (H,)
         b2 = fit.stan_variable("output_bias")[sample_idx]      # skalar
+        b2 = float(np.asarray(b2).squeeze()) 
         model = StanNNRegressor(input_dim, hidden_dim, activation=activation)
 
         with torch.no_grad():
@@ -76,7 +77,9 @@ def build_pytorch_model_from_stan_sample(
 
             model.linear1.weight.copy_(W1_t)                                   # (H, D)
             model.linear1.bias.copy_(torch.tensor(b1, dtype=torch.float32))     # (H,)
-            model.linear2.weight.copy_(torch.tensor(W2, dtype=torch.float32).unsqueeze(0))  # (1, H)
+            W2_t = torch.tensor(W2, dtype=torch.float32).T
+            model.linear2.weight.copy_(W2_t)
+            #model.linear2.weight.copy_(torch.tensor(W2, dtype=torch.float32)).unsqueeze(0)  # (1, H)
             model.linear2.bias.copy_(torch.tensor([b2], dtype=torch.float32))   # (1,)
         return model
 
