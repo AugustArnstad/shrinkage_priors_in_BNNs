@@ -459,7 +459,7 @@ def asymmetric_diverging_cmap(vmin, vmax, neg='#2b6cb0', pos='#d53e4f', eps=1e-1
     return LinearSegmentedColormap.from_list('asym_neg_black_pos', colors, N=256)
 
 def visualize_models(
-    matrices, names, H=16, p=10, use_abs=False, q_low=0.05, q_high=0.99,
+    matrices, names, H=16, p=10, use_abs=False, q_low=0.05, q_high=0.99, nrow=2, ncol=2,
     neg_color='#2b6cb0', pos_color='#d53e4f'
 ):
     """
@@ -470,7 +470,7 @@ def visualize_models(
     """
     mats = [np.abs(M) if use_abs else M for M in matrices]
 
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10), dpi=150, constrained_layout=True)
+    fig, axes = plt.subplots(nrow, ncol, figsize=(12, 10), dpi=150, constrained_layout=True)
     axes = axes.ravel()
 
     for ax, M, title in zip(axes, mats, names):
