@@ -3,29 +3,29 @@
 // =====================
 
 functions {
-  //matrix nn_predict(matrix X,
-  //                  matrix W_1,
-  //                  array[] matrix W_internal,
-  //                  array[] row_vector hidden_bias,
-  //                  matrix W_L,
-  //                  row_vector output_bias,
-  //                  int L) {
-  //  int N = rows(X);
-  //  int output_nodes = cols(W_L);
-  //  int H = cols(W_1);
-  //  array[L] matrix[N, H] hidden;
+  matrix nn_predict(matrix X,
+                    matrix W_1,
+                    array[] matrix W_internal,
+                    array[] row_vector hidden_bias,
+                    matrix W_L,
+                    row_vector output_bias,
+                    int L) {
+    int N = rows(X);
+    int output_nodes = cols(W_L);
+    int H = cols(W_1);
+    array[L] matrix[N, H] hidden;
 
-  //  hidden[1] = fmax((X * W_1 + rep_vector(1.0, N) * hidden_bias[1]), 0);
+    hidden[1] = tanh(X * W_1 + rep_vector(1.0, N) * hidden_bias[1]);
 
-  //  if (L > 1) {
-  //    for (l in 2:L)
-  //      hidden[l] = fmax((hidden[l - 1] * W_internal[l - 1] + rep_vector(1.0, N) * hidden_bias[l]), 0);
-  //  }
+    if (L > 1) {
+      for (l in 2:L)
+        hidden[l] = tanh((hidden[l - 1] * W_internal[l - 1] + rep_vector(1.0, N) * hidden_bias[l]));
+    }
 
-  //  matrix[N, output_nodes] output = hidden[L] * W_L;
-  //  output += rep_matrix(output_bias, N);
-  //  return output;
-  //}
+    matrix[N, output_nodes] output = hidden[L] * W_L;
+    output += rep_matrix(output_bias, N);
+    return output;
+  }
 }
 
 data {
@@ -129,15 +129,15 @@ model {
 
 generated quantities {
   //matrix[N, output_nodes] output_dbg = output;
-  //matrix[N_test, output_nodes] output_test = nn_predict(
-  //  X_test,
-  //  W_1,
-  //  W_internal,
-  //  hidden_bias,
-  //  W_L,
-  //  output_bias,
-  //  L
-  //);
+  matrix[N_test, output_nodes] output_test = nn_predict(
+    X_test,
+    W_1,
+    W_internal,
+    hidden_bias,
+    W_L,
+    output_bias,
+    L
+  );
   //matrix[N_test, output_nodes] output_test_rng;
   //for (n in 1:N_test)
   //  for (j in 1:output_nodes)
