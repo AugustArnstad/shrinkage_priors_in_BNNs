@@ -465,3 +465,42 @@ def generate_uniform_data(N=200, D=10, test_size=0.2, seed=42,
 
     return X_train, X_test, y_train, y_test
 
+def generate_latent_hastie_data(n, p, 
+                                d=5, r_theta=1.0, sigma_xi=0.0, rng=None,
+                                random_state=42,
+                                test_size=0.2):
+    """
+    Section 5.4 latent model (Hastie–Montanari–Rosset–Tibshirani):
+      X = Z W^T + U,   y = Z θ + ξ
+      z_i ~ N(0, I_d), u_ij ~ N(0, 1), ξ_i ~ N(0, σ_ξ^2)
+    Rows w_j of W satisfy ||w_j|| = 1.               [Fig. 5/6 setup]
+    Population mapping to linear model:
+      Σ = I_p + W W^T,   β = W (I + W^T W)^{-1} θ.   [eqs. (26)-(27)]
+    Returns: X (n×p), y (n,), W (p×d), theta (d,), beta_true (p,), Sigma (p×p)
+    """
+
+    rng = np.random.default_rng(random_state)
+
+    # Random W with unit-norm rows (||w_j||=1)
+    W = rng.normal(size=(p, d))
+    W /= np.linalg.norm(W, axis=1, keepdims=True) + 1e-12  # enforce ||w_j||=1
+
+    # Latent Z, feature noise U, label noise ξ
+    Z = rng.normal(size=(n, d))
+    U = rng.normal(size=(n, p))
+    xi = rng.normal(scale=sigma_xi, size=n)
+
+    # Signal vector θ with ||θ|| = r_theta
+    theta = rng.normal(size=d)
+    theta *= r_theta / (np.linalg.norm(theta) + 1e-12)
+
+    # Data
+    X = Z @ W.T + U
+    y = Z @ theta + xi
+
+    # Population quantities for risk
+    #Sigma = np.eye(p) + W @ W.T
+    #beta_true = W @ np.linalg.solve(np.eye(d) + W.T @ W, theta)  # β = W (I + W^T W)^(-1) θ
+
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
+

@@ -61,7 +61,7 @@ parameters {
 }
 
 transformed parameters {
-  real<lower=1e-6> tau_0 = (1.0 * p_0 / (P - p_0)); // / sqrt(N);
+  real<lower=1e-6> tau_0 = (1.0 * p_0 / (P - p_0)) / sqrt(H); // / sqrt(N);
 
   array[H] vector<lower=0>[P] lambda_tilde;
   for (j in 1:H) {
