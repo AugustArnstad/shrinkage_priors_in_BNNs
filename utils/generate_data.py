@@ -504,3 +504,178 @@ def generate_latent_hastie_data(n, p,
 
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
+def generate_correlated_data(n, p, random_state=42, test_size=0.2,
+                         rho_strong=0.92, rho_weak=0.5, noise_scale=0.5):
+    """
+    Generates a nonlinear dataset with interactions:
+      - 6 features total (p must be 6).
+      - X1..X4: strongly correlated block, main drivers of y (with interactions).
+      - X5..X6: correlated weak block, small effect on y.
+      - X and y are standardized (mean 0, std 1).
+
+    Returns:
+      X_train, X_test, y_train, y_test
+    """
+    if p != 6:
+        raise ValueError("This generator is designed for p=6.")
+
+    rng = np.random.default_rng(random_state)
+
+    # Two latent factors for correlation structure
+    h1 = rng.normal(size=n)
+    h2 = rng.normal(size=n)
+
+    # Build correlated features: 4 strong from h1, 2 weak from h2
+    def make_block(h, m, rho):
+        eps = rng.normal(size=(n, m))
+        return rho * h[:, None] + np.sqrt(max(1e-12, 1 - rho**2)) * eps
+
+    X_strong = make_block(h1, 4, rho_strong)  # X1..X4
+    X_weak   = make_block(h2, 2, rho_weak)    # X5..X6
+    X = np.concatenate([X_strong, X_weak], axis=1)
+
+    # Standardize features
+    X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-12)
+    X1, X2, X3, X4, X5, X6 = [X[:, j] for j in range(6)]
+
+    # Nonlinear target with interactions, plus small weak effects
+    # - Strong block has main linear trends + pairwise interactions
+    # - Nonlinear link (tanh + sin) ensures linear model misspecification
+    strong_lin = 0.6*X1 + 0.4*X2 - 0.2*X3 + 0.1*X4
+    strong_int = 1.2*(X1*X2) + 0.8*(X3*X4) - 0.6*(X1*X4)
+    weak_part  = 0.15*(0.7*X5 + 0.3*X6) + 0.12*(X5*X6)
+
+    g = np.tanh(strong_lin + strong_int) + 0.3*np.sin(0.5*X2 - 0.25*X3)
+    y = g + weak_part + rng.normal(scale=noise_scale, size=n)
+
+    # Standardize target
+    y = (y - y.mean()) / (y.std() + 1e-12)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state
+    )
+    return X_train, X_test, y_train, y_test
+
+def generate_correlated_data_noisy(
+    n, p=None, p_init=6, random_state=42, test_size=0.2,
+    rho_strong=0.92, rho_weak=0.5, noise_scale=0.5,
+    n_noise=0, noise_rho=0.0,
+    standardize_features=True, standardize_target=True
+):
+    """
+    Nonlinear dataset with interactions and optional extra non-influential features.
+
+    Base structure (always present):
+      - 6 features total in core set:
+          X1..X4: strongly correlated block, main drivers of y (with interactions)
+          X5..X6: moderately correlated weak block, small effect on y
+      - y depends ONLY on X1..X6 (noise features have zero effect by construction)
+      - Optional noise features (X7..X_{6+n_noise}) can be added; they are pure distractors.
+
+    Correlation:
+      - Strong block uses a latent factor with corr ~ rho_strong
+      - Weak block uses a latent factor with corr ~ rho_weak
+      - Noise block can be independent (noise_rho=0) or share a latent factor (noise_rho>0)
+
+    Standardization:
+      - Features are standardized columnwise if standardize_features=True
+      - Target standardized if standardize_target=True
+
+    Args:
+      n: number of samples
+      p: (optional) total number of features to enforce; must equal 6 + n_noise if given
+      n_noise: number of additional noise features (default 0)
+      noise_rho: correlation level among noise features (0 => independent)
+      noise_scale: std of observation noise added to y
+      test_size, random_state: as in scikit-learn
+
+    Returns:
+      X_train, X_test, y_train, y_test
+    """
+    rng = np.random.default_rng(random_state)
+    total_p = p_init + int(n_noise)
+    if p is not None and p != total_p:
+        raise ValueError(f"p must equal 6 + n_noise (= {total_p}), got p={p}.")
+
+    # Latent factors for correlation structure
+    h1 = rng.normal(size=n)  # drives strong block X1..X4
+    h2 = rng.normal(size=n)  # drives weak block   X5..X6
+
+    def make_block(h, m, rho):
+        eps = rng.normal(size=(n, m))
+        return rho * h[:, None] + np.sqrt(max(1e-12, 1 - rho**2)) * eps
+
+    # Core features
+    X_strong = make_block(h1, 4, rho_strong)    # X1..X4
+    X_weak   = make_block(h2, 2, rho_weak)      # X5..X6
+
+    # Optional noise features (pure distractors)
+    if n_noise > 0:
+        if abs(noise_rho) < 1e-12:
+            X_noise = rng.normal(size=(n, n_noise))  # independent noise features
+        else:
+            h3 = rng.normal(size=n)
+            X_noise = make_block(h3, n_noise, noise_rho)
+        X = np.concatenate([X_strong, X_weak, X_noise], axis=1)
+    else:
+        X = np.concatenate([X_strong, X_weak], axis=1)
+
+    # Standardize features (before building y won't change y because y only uses first 6)
+    if standardize_features:
+        X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-12)
+
+    # Alias the first six for readability
+    X1, X2, X3, X4, X5, X6 = [X[:, j] for j in range(6)]
+
+    # Nonlinear target with interactions (noise features do not enter)
+    strong_lin = 0.6*X1 + 0.4*X2 - 0.2*X3 + 0.1*X4
+    strong_int = 1.2*(X1*X2) + 0.8*(X3*X4) - 0.6*(X1*X4)
+    weak_part  = 0.15*(0.7*X5 + 0.3*X6) + 0.12*(X5*X6)
+
+    g = np.tanh(strong_lin + strong_int) + 0.3*np.sin(0.5*X2 - 0.25*X3)
+    y = g + weak_part + rng.normal(scale=noise_scale, size=n)
+
+    if standardize_target:
+        y = (y - y.mean()) / (y.std() + 1e-12)
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state
+    )
+    return X_train, X_test, y_train, y_test
+
+def generate_correlated_data_sigma(
+    n, p=6, random_state=42, test_size=0.2,
+    rho_strong=0.92, rho_weak=0.5, sigma=0.5,
+    standardize_X=True, standardize_y=False
+):
+    """
+    Nonlinear Y = g(X) + N(0, sigma^2).
+    Keep standardize_y=False so MI varies with sigma.
+    """
+    if p != 6:
+        raise ValueError("This generator is designed for p=6.")
+    rng = np.random.default_rng(random_state)
+
+    # latent factors -> correlated features
+    h1 = rng.normal(size=n); h2 = rng.normal(size=n)
+    def make_block(h, m, rho):
+        eps = rng.normal(size=(n, m))
+        return rho * h[:, None] + np.sqrt(max(1e-12, 1 - rho**2)) * eps
+
+    X_strong = make_block(h1, 4, rho_strong)  # X1..X4
+    X_weak   = make_block(h2, 2, rho_weak)    # X5..X6
+    X = np.concatenate([X_strong, X_weak], axis=1)
+
+    if standardize_X:
+        X = (X - X.mean(axis=0)) / (X.std(axis=0) + 1e-12)
+
+    X1, X2, X3, X4, X5, X6 = [X[:, j] for j in range(6)]
+    strong_lin = 0.6*X1 + 0.4*X2 - 0.2*X3 + 0.1*X4
+    strong_int = 1.2*(X1*X2) + 0.8*(X3*X4) - 0.6*(X1*X4)
+    weak_part  = 0.15*(0.7*X5 + 0.3*X6) + 0.12*(X5*X6)
+    g = np.tanh(strong_lin + strong_int) + 0.3*np.sin(0.5*X2 - 0.25*X3) + weak_part
+
+    y = g + rng.normal(scale=sigma, size=n)  # ADD noise with std = sigma
+
+    # do NOT standardize y; we want MI to depend on sigma
+    return train_test_split(X, y, test_size=test_size, random_state=random_state)
