@@ -127,10 +127,12 @@ def plot_all_networks_subplots_activations(model_dicts, layer_sizes, node_activa
         edge_widths = []
 
         # Function to add edges from W
-        def add_edges(W, in_nodes, out_nodes):
+        def add_edges(W, in_nodes, out_nodes, tol=1e-10):
             for j, out_node in enumerate(out_nodes):
                 for i, in_node in enumerate(in_nodes):
                     w = W[i, j]
+                    if abs(w)<tol:
+                        continue
                     G.add_edge(in_node, out_node, weight=abs(w))
                     edge_colors.append('red' if w >= 0 else 'blue')
                     edge_widths.append(abs(w))
@@ -149,7 +151,9 @@ def plot_all_networks_subplots_activations(model_dicts, layer_sizes, node_activa
         #labels = {nid: nid for nid in G.nodes}
         #nx.draw_networkx_labels(G, pos, labels=labels, ax=axes[idx], font_size=8)
 
-        edge_widths = [G[u][v]['weight'] for u, v in G.edges()]
+        #edge_widths = [G[u][v]['weight'] for u, v in G.edges()]
+        edge_widths = np.array([G[u][v]['weight'] for u, v in G.edges()])
+        edge_widths = np.clip(edge_widths / (edge_widths.max() + 1e-12) * max_width, 0.5, None)
 
         nx.draw(G, pos, ax=axes[idx], node_color=node_colors,
                 edge_color=edge_colors if signed_colors else 'red',

@@ -61,7 +61,7 @@ transformed parameters {
 }
 
 model {
-  to_vector(W_1) ~ normal(0, 1);
+  to_vector(W_1) ~ normal(0, 1/sqrt(H));
 
   if (L > 1) {
     for (l in 1:(L - 1))

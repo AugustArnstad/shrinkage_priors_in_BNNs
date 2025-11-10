@@ -19,12 +19,15 @@ parser.add_argument("--output_dir", type=str, default="results", help="Output di
 args = parser.parse_args()
 
 # Last inn data
-X_train, X_test, y_train, y_test = generate_correlated_data(n=500, p=6, random_state=42, noise_scale=0.0)
+X_train, X_test, y_train, y_test = generate_correlated_data(n=500, p=6, random_state=42, 
+                                                            noise_scale=0.5, 
+                                                            rho_strong=0.92, 
+                                                            rho_weak=0.5)
 N, p = X_train.shape
 seed = 42
 data_type = "correlated"
-config_name = f"correlated_N{N}_p{p}_sigma_{0.0}"
-
+config_name = f"correlated_N{N}_p{p}_sigma_{0.5}_rho_{0.92}_{0.5}_scaled"
+#python3 utils/run_correlated.py --model gaussian_tanh --output_dir results/correlated
 # Sett output-dir
 model_output_dir = os.path.join(args.output_dir, args.model, config_name)
 

@@ -25,9 +25,9 @@ parser.add_argument("--output_dir", type=str, default="results", help="Max numbe
 
 args = parser.parse_args()
 
-data_dir = f"datasets/friedman"
+data_dir = f"datasets/friedman_correlated/many"
 results_dir = args.output_dir 
-
+#python3 utils/run_all_regression_models.py --model regularized_horseshoe_tanh --output_dir results/regression/single_layer/tanh/friedman_correlated
 warmup = args.warmup
 sample = args.sample
 
