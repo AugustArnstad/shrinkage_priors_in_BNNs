@@ -24,7 +24,7 @@ args = parser.parse_args()
 
 #data_dir = f"datasets/friedman/many"
 #X_train, X_test, y_train, y_test = generate_uniform_data()
-path = "datasets/friedman/Friedman_N100_p10_sigma1.00_seed1.npz"
+path = "datasets/friedman/Friedman_N500_p10_sigma1.00_seed11.npz"
 data = np.load(path)
 
 X_train, X_test, y_train, y_test = data['X_train'], data['X_test'], data['y_train'], data['y_test']
@@ -35,8 +35,8 @@ sample = args.sample
 N, p = X_train.shape
 seed = 42
 data_type = "prior"
-# python3 utils/run_all_prior_models.py --model dirichlet_student_t --output_dir results/priors/single_layer/tanh/friedman 
-config_name = f"p0_4"
+# python3 utils/run_all_prior_models.py --model gaussian --output_dir results/priors/single_layer/tanh/friedman 
+config_name = f"Friedman_N500_p10_sigma1.00_seed11"
 # Sett output-dir
 model_output_dir = os.path.join(args.output_dir, args.model, config_name)
 
