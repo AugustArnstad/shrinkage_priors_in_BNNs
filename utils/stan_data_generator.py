@@ -77,6 +77,11 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
     elif model_name == "gaussian" or model_name == "gaussian_tanh":
         # No additional priors needed
         pass
+    
+    elif model_name == "pcp" or model_name == "pcp_tanh":
+        stan_data.update({
+            'kappa_eps': 1e-10,
+        })
 
     elif model_name == "horseshoe":
         stan_data.update({
