@@ -25,7 +25,7 @@ parser.add_argument("--output_dir", type=str, default="results", help="Max numbe
 
 args = parser.parse_args()
 
-data_dir = f"datasets/friedman_correlated/many"
+data_dir = f"datasets/friedman"
 #data_dir = f"datasets/friedman_correlated"
 results_dir = args.output_dir 
 
