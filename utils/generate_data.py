@@ -679,3 +679,39 @@ def generate_correlated_data_sigma(
 
     # do NOT standardize y; we want MI to depend on sigma
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
+
+def load_linreg_dataset(
+    path="datasets/linreg/linreg_data.npz",
+    test_fraction=0.2,
+    seed=123,
+):
+    """
+    Loads the linreg dataset and splits into train/test sets.
+    Returns X_train, X_test, y_train, y_test, plus metadata dict.
+    """
+    data = np.load(path)
+    X = data["X"]
+    y = data["y"]
+
+    N = X.shape[0]
+    np.random.seed(seed)
+
+    # --- Random permutation of indices ---
+    idx = np.random.permutation(N)
+    test_size = int(test_fraction * N)
+
+    test_idx = idx[:test_size]
+    train_idx = idx[test_size:]
+
+    # --- Split ---
+    X_train = X[train_idx]
+    X_test = X[test_idx]
+    y_train = y[train_idx]
+    y_test = y[test_idx]
+
+    meta = {key: data[key] for key in data.files if key not in ["X", "y"]}
+
+    return X_train, X_test, y_train, y_test, meta
+
+
+

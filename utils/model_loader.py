@@ -41,6 +41,11 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Dirichlet Student T tanh": ('dirichlet_student_t_tanh_prior', 'dirichlet_student_t_tanh'),
         "Dirichlet Gamma tanh": ('dirichlet_gamma_prior_tanh', 'dirichlet_gamma_tanh'),
         "Pred CP tanh": ('pcp_prior_tanh','pcp_tanh'),
+        
+        "Linreg Gaussian": ('linreg_gaussian_prior', 'linreg_gaussian'),                
+        "Linreg Regularized Horseshoe": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe'),
+        "Linreg Dirichlet Horseshoe": ('linreg_dirichlet_horseshoe_prior', 'linreg_dirichlet_horseshoe'),
+        "Linreg Dirichlet Student T": ('linreg_dirichlet_student_t_prior', 'linreg_dirichlet_student_t'),
     }
 
     # Filter models if a subset is provided

@@ -5,6 +5,37 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
     Returns a dictionary with Stan-compatible data fields,
     including prior-specific hyperparameters.
     """
+    if model_name == "linreg_dirichlet_horseshoe" or "linreg_dirichlet_student_t":
+        # y is a vector[N] in the Stan code
+        stan_data = {
+            "N": X_train.shape[0],
+            "P": args.p,
+            "X": X_train,
+            "y": y_train,                     # 1D vector, no reshape
+            "p_0": 4,
+            "a": 2.0,
+            "b": 4.0,
+            "alpha": 0.1 * np.ones(args.p),
+        }
+        return stan_data
+    
+    if model_name == "linreg_gaussian":
+        # y is a vector[N] in the Stan code
+        stan_data = {
+            "N": X_train.shape[0],
+            "P": args.p,
+            "X": X_train,
+            "y": y_train,                     # 1D vector, no reshape
+        }
+        return stan_data
+    
+    if model_name == "linreg_regularized_horseshoe":
+        stan_data = {
+            'p_0': 4,
+            'a': 2.0,
+            'b': 4.0,
+        }
+        return stan_data
 
     # Shared basic data
     if task != "prior":
