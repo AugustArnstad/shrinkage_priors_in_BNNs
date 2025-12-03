@@ -46,6 +46,10 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Linreg Regularized Horseshoe": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe'),
         "Linreg Dirichlet Horseshoe": ('linreg_dirichlet_horseshoe_prior', 'linreg_dirichlet_horseshoe'),
         "Linreg Dirichlet Student T": ('linreg_dirichlet_student_t_prior', 'linreg_dirichlet_student_t'),
+        
+        "Linreg Regularized Horseshoe Centered": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe_centered'),
+        "Linreg Dirichlet Horseshoe Centered": ('linreg_dirichlet_horseshoe_prior', 'linreg_dirichlet_horseshoe_centered'),
+        "Linreg Dirichlet Student T Centered": ('linreg_dirichlet_student_t_prior', 'linreg_dirichlet_student_t_centered'),
     }
 
     # Filter models if a subset is provided

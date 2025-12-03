@@ -1,5 +1,6 @@
 // ============================================
 // Linear regression with Dirichlet–horseshoe / DSM prior on coefficients
+// Centered parameterization for beta
 // ============================================
 
 data {
@@ -16,9 +17,6 @@ data {
 }
 
 parameters {
-  // Dirichlet sparsity knob
-  // vector<lower=0, upper=10>[P] alpha;
-
   // Local scales (raw, before regularization)
   vector<lower=0, upper=50>[P] lambda_data;
 
@@ -29,8 +27,8 @@ parameters {
   real<lower=1e-6> tau;
   real<lower=1e-6> c_sq;
 
-  // Non-centered raw regression coefficients
-  vector[P] beta_raw;
+  // Centered regression coefficients
+  vector[P] beta;
 
   // Noise scale
   real<lower=1e-6> sigma;
@@ -43,8 +41,8 @@ transformed parameters {
   // Regularized local scales
   vector<lower=0>[P] lambda_tilde_data;
 
-  // Actual regression coefficients
-  vector[P] beta;
+  // Per-coefficient prior std devs (scale parameters)
+  vector<lower=0>[P] beta_sd;
 
   for (i in 1:P) {
     lambda_tilde_data[i] = fmax(
@@ -52,13 +50,11 @@ transformed parameters {
       c_sq * square(lambda_data[i]) /
       (c_sq + square(lambda_data[i]) * square(tau))
     );
-    {
-      real stddev = fmax(
-        1e-12,
-        tau * sqrt(lambda_tilde_data[i]) * sqrt(phi_data[i])
-      );
-      beta[i] = stddev * beta_raw[i];
-    }
+
+    beta_sd[i] = fmax(
+      1e-12,
+      tau * sqrt(lambda_tilde_data[i]) * sqrt(phi_data[i])
+    );
   }
 }
 
@@ -67,12 +63,12 @@ model {
   tau ~ cauchy(0, tau_0);
   c_sq ~ inv_gamma(a, b);
 
-  // alpha ~ lognormal(-2, 1);
-
   lambda_data ~ cauchy(0, 1);
   phi_data ~ dirichlet(alpha);
 
-  beta_raw ~ normal(0, 1);
+  // Centered prior on coefficients
+  for (i in 1:P)
+    beta[i] ~ normal(0, beta_sd[i]);
 
   sigma ~ inv_gamma(3, 2);
 
@@ -82,9 +78,7 @@ model {
 
 generated quantities {
   vector[N] y_hat;
-  // Posterior predictive draws for potential test / new data
-  // (if you want actual test predictions, add N_test and X_test to data)
-  
+
   // Fitted mean
   y_hat = X * beta;
 }

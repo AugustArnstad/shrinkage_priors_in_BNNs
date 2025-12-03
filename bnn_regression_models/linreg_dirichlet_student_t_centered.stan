@@ -1,5 +1,6 @@
 // =====================
 // Linear regression with Dirichlet–horseshoe prior
+// Centered parameterization
 // =====================
 
 data {
@@ -18,10 +19,6 @@ data {
 }
 
 parameters {
-  // Dirichlet sparsity knob
-  // vector<lower=0, upper=10>[P] alpha;
-
-
   // Local scales (raw, before regularization)
   vector<lower=0, upper=50>[P] lambda;
 
@@ -32,8 +29,8 @@ parameters {
   // Dirichlet allocation over coefficients
   simplex[P] phi_data;
 
-  // Non-centered regression coefficients
-  vector[P] beta_raw;
+  // Centered regression coefficients
+  vector[P] beta;
 
   // Observation noise
   real<lower=1e-6> sigma;
@@ -45,8 +42,8 @@ transformed parameters {
   // Regularized local scales
   vector<lower=0>[P] lambda_tilde;
 
-  // Actual regression coefficients
-  vector[P] beta;
+  // Per-coefficient prior std devs (scales)
+  vector<lower=0>[P] beta_sd;
 
   for (i in 1:P) {
     lambda_tilde[i] = fmax(
@@ -54,13 +51,11 @@ transformed parameters {
       c_sq * square(lambda[i]) /
       (c_sq + square(lambda[i]) * square(tau))
     );
-    {
-      real stddev = fmax(
-        1e-12,
-        tau * sqrt(lambda_tilde[i]) * sqrt(phi_data[i])
-      );
-      beta[i] = stddev * beta_raw[i];
-    }
+
+    beta_sd[i] = fmax(
+      1e-12,
+      tau * sqrt(lambda_tilde[i]) * sqrt(phi_data[i])
+    );
   }
 }
 
@@ -69,16 +64,15 @@ model {
   tau ~ cauchy(0, tau_0);
   c_sq ~ inv_gamma(a, b);
 
-  // alpha ~ lognormal(-2, 1);
-
   // Local scales: heavy-tailed t(3)
   lambda ~ student_t(3, 0, 1);
 
   // Dirichlet allocation over coefficients
   phi_data ~ dirichlet(alpha);
 
-  // Standard normal for non-centered coefficients
-  beta_raw ~ normal(0, 1);
+  // Centered prior for coefficients
+  for (i in 1:P)
+    beta[i] ~ normal(0, beta_sd[i]);
 
   // Noise prior
   sigma ~ inv_gamma(3, 2);
@@ -96,8 +90,6 @@ generated quantities {
   // vector[N_test] y_test_rng;
 
   // y_test_mean = X_test * beta;
-
-  // for (n in 1:N_test) {
-    // y_test_rng[n] = normal_rng(y_test_mean[n], sigma);
-  // }
+  // for (n in 1:N_test)
+  //   y_test_rng[n] = normal_rng(y_test_mean[n], sigma);
 }
