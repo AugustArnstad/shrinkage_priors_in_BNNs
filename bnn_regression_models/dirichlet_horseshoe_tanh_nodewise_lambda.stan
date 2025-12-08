@@ -15,11 +15,11 @@ functions {
     int H = cols(W_1);
     array[L] matrix[N, H] hidden;
 
-    hidden[1] = fmax((X * W_1 + rep_vector(1.0, N) * hidden_bias[1]), 0);
+    hidden[1] = tanh(X * W_1 + rep_vector(1.0, N) * hidden_bias[1]);
 
     if (L > 1) {
       for (l in 2:L)
-        hidden[l] = fmax((hidden[l - 1] * W_internal[l - 1] + rep_vector(1.0, N) * hidden_bias[l]), 0);
+        hidden[l] = tanh(hidden[l - 1] * W_internal[l - 1] + rep_vector(1.0, N) * hidden_bias[l]);
     }
 
     matrix[N, output_nodes] output = hidden[L] * W_L;
@@ -41,19 +41,18 @@ data {
   int<lower=1> N_test;
   matrix[N_test, P] X_test;
   
-  //int<lower=1> p_0;
-  //real<lower=0> a;
-  //real<lower=0> b;
+  int<lower=1> p_0;
+  real<lower=0> a;
+  real<lower=0> b;
   vector<lower=0>[P] alpha;
-  //real<lower=0, upper=1> gamma;
+  real<lower=0, upper=1> gamma;
 }
 
 parameters {
-  //array[H] vector<lower=0>[P] lambda_data;
-  array[H] vector<lower=0>[P] lambda;
+  vector<lower=0, upper=50>[H] lambda_data;
   array[H] simplex[P] phi_data;
-  //real<lower=1e-6> tau;
-  //vector<lower=0>[H] c_sq;
+  real<lower=1e-6> tau;
+  vector<lower=0>[H] c_sq;
 
   matrix[P, H] W1_raw;
 
@@ -65,24 +64,19 @@ parameters {
 }
 
 transformed parameters {
-  //real<lower=1e-6> tau_0 = (p_0 * 1.0) / (P - p_0) * 1 / sqrt(N);
+  real<lower=1e-6> tau_0 = (p_0 * 1.0) / (P - p_0) * 1 / sqrt(N);
 
-  //array[H] vector<lower=0>[P] lambda_tilde_data;
-  array[H] vector<lower=0>[P] phi_tilde_data;
+  vector<lower=0>[H] lambda_tilde_data;
 
   for (j in 1:H) {
-    for (i in 1:P) {
-      //lambda_tilde_data[j][i] = c_sq[j] * square(lambda_data[j][i]) /
-      //                          (c_sq[j] + square(lambda_data[j][i]) * square(tau));
-      phi_tilde_data[j][i] = P * phi_data[j][i];
-    }
+    lambda_tilde_data[j] = fmax(1e-12, c_sq[j] * square(lambda_data[j]) /
+                              (c_sq[j] + square(lambda_data[j]) * square(tau)));
   }
 
   matrix[P, H] W_1;
   for (j in 1:H) {
     for (i in 1:P) {
-      //real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i]) * phi_tilde_data[j][i]);
-      real stddev = fmax(1e-12, lambda[j][i] * phi_tilde_data[j][i]);
+      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j]) * sqrt(phi_data[j][i]));
       W_1[i, j] = stddev * W1_raw[i, j];
     }
   }
@@ -93,12 +87,11 @@ transformed parameters {
 }
 
 model {
-  //tau ~ cauchy(0, tau_0);
-  //c_sq ~ inv_gamma(a, b);
+  tau ~ cauchy(0, tau_0);
+  c_sq ~ inv_gamma(a, b);
 
   for (j in 1:H) {
-    //lambda_data[j] ~ cauchy(0, 1);
-    lambda[j] ~ student_t(3, 0, 1);
+    lambda_data[j] ~ cauchy(0, 1);
     phi_data[j] ~ dirichlet(alpha);
   }
   to_vector(W1_raw) ~ normal(0, 1);

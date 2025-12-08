@@ -15,24 +15,24 @@ parser = argparse.ArgumentParser(description="Run regression model on Abalone da
 parser.add_argument("--model", type=str, required=True, help="Model name (e.g. dirichlet_horseshoe)")
 parser.add_argument("--overwrite", action="store_true", help="If set, re-run even if result exists")
 parser.add_argument("--output_dir", type=str, default="results", help="Output directory for results")
+parser.add_argument("--rho", type=float, default=0.0, help="Autocorrelation")
 parser.add_argument("--standardize", action="store_true", help="Standardize data before fitting")
 
 args = parser.parse_args()
 
 # Last inn data
-X_train, X_test, y_train, y_test, meta = load_linreg_dataset(
-    path="datasets/linreg/linreg_data.npz",
+X_train, X_test, y_train, y_test, _, _, _ = load_linreg_dataset(
+    path=f"datasets/linreg/linreg_data_rho_{args.rho}.npz",
     test_fraction=0.2,
-    seed=42,
+    seed=123,
 )
 N, p = X_train.shape
 seed = 42
 data_type = "linreg"
 if args.standardize:
-    config_name = f"linreg_N{N}_p{p}_standardized"
+    config_name = f"linreg_N{N}_p{p}_rho_{args.rho}_standardized"
 else:     
-    config_name = f"linreg_N{N}_p{p}"
-
+    config_name = f"linreg_N{N}_p{p}_rho_{args.rho}"
 # Sett output-dir
 model_output_dir = os.path.join(args.output_dir, args.model, config_name)
 

@@ -680,8 +680,39 @@ def generate_correlated_data_sigma(
     # do NOT standardize y; we want MI to depend on sigma
     return train_test_split(X, y, test_size=test_size, random_state=random_state)
 
-def load_linreg_dataset(
-    path="datasets/linreg/linreg_data.npz",
+def generate_linreg_AR_data(N=250, p=10, seed=123):
+    rng = np.random.default_rng(seed)   # reproducible RNG
+
+    P = p
+
+    # Sparse true coefficients
+    beta_true = np.array([3.0, -2.0, 1.5, 0.8, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0])
+
+    # AR(1) covariance structure
+    rho = 0.7
+    Sigma = rho ** np.abs(np.subtract.outer(np.arange(P), np.arange(P)))
+    L = np.linalg.cholesky(Sigma)
+
+    # Correlated predictors
+    X = rng.normal(size=(N, P)) @ L.T
+
+    # Inject outliers
+    outlier_fraction = 0.05
+    num_outliers = int(outlier_fraction * N)
+    outlier_rows = rng.choice(N, num_outliers, replace=False)
+    X[outlier_rows] += rng.normal(0, 8.0, size=(num_outliers, P))
+
+    # Heavy-tailed noise
+    df = 3
+    noise = rng.standard_t(df, size=N) * 0.7
+
+    # Generate response
+    y = X @ beta_true + noise
+
+    return X, y, beta_true
+
+def load_linreg_AR_dataset(
+    path="datasets/linreg/linreg_data_AR.npz",
     test_fraction=0.2,
     seed=123,
 ):
@@ -711,7 +742,74 @@ def load_linreg_dataset(
 
     meta = {key: data[key] for key in data.files if key not in ["X", "y"]}
 
-    return X_train, X_test, y_train, y_test, meta
+    return X_train, X_test, y_train, y_test, meta, X, y
 
+def generate_linreg_simple_data(
+    N=250,
+    p=10,
+    rho=0.0,
+    sigma=1.0,
+    seed=123
+):
+    """
+    Generate a simple linear regression dataset:
+    y = X beta + noise,
+    with optional AR(1)-type correlation structure (rho).
+    No interactions and sparse true coefficients.
+    """
 
+    np.random.seed(seed)
+
+    # --- Sparse true coefficients ---
+    beta_true = np.array([3.0, -2.0, 1.5, 0.8, 0.2] + [0.0]*(p-5))
+    beta_true = beta_true[:p]  # ensure correct dimension
+
+    # --- Covariance structure (Toeplitz/AR-like) ---
+    if rho == 0.0:
+        # Independent predictors
+        X = np.random.normal(0, 1, size=(N, p))
+    else:
+        # Correlated predictors
+        Sigma = rho ** np.abs(np.subtract.outer(np.arange(p), np.arange(p)))
+        L = np.linalg.cholesky(Sigma)
+        X = np.random.normal(size=(N, p)) @ L.T
+
+    # --- Generate y ---
+    noise = np.random.normal(0.0, sigma, size=N)
+    y = X @ beta_true + noise
+
+    return X, y, beta_true
+
+def load_linreg_dataset(
+    path="datasets/linreg/linreg_data_rho_0.0.npz",
+    test_fraction=0.2,
+    seed=123,
+):
+    """
+    Loads the linreg dataset and splits into train/test sets.
+    Returns X_train, X_test, y_train, y_test, plus metadata dict.
+    """
+    data = np.load(path)
+    X = data["X"]
+    y = data["y"]
+
+    N = X.shape[0]
+    np.random.seed(seed)
+
+    # --- Random permutation of indices ---
+    idx = np.random.permutation(N)
+    test_size = int(test_fraction * N)
+
+    test_idx = idx[:test_size]
+    train_idx = idx[test_size:]
+
+    # --- Split ---
+    X_train = X[train_idx]
+    X_test = X[test_idx]
+    y_train = y[train_idx]
+    y_test = y[test_idx]
+
+    meta = {key: data[key] for key in data.files if key not in ["X", "y"]}
+
+    return X_train, X_test, y_train, y_test, meta, X, y
 

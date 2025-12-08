@@ -25,8 +25,8 @@ parser.add_argument("--output_dir", type=str, default="results", help="Max numbe
 
 args = parser.parse_args()
 
-data_dir = f"datasets/friedman"
-#data_dir = f"datasets/friedman_correlated"
+#data_dir = f"datasets/friedman"
+data_dir = f"datasets/friedman_correlated"
 results_dir = args.output_dir 
 
 warmup = args.warmup
@@ -86,7 +86,7 @@ for fname in files:
             L=L,
             config=config_name,
             seed=seed,
-            data_config = "interactions",
+            data_config = "nodewise_lambda",
             model_output_dir = model_output_dir,
             burnin_samples=warmup,
             samples=sample,
