@@ -5,7 +5,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
     Returns a dictionary with Stan-compatible data fields,
     including prior-specific hyperparameters.
     """
-    if model_name == "linreg_dirichlet_horseshoe" or model_name == "linreg_dirichlet_student_t":
+    if model_name == "linreg_dirichlet_horseshoe" or model_name == "linreg_dirichlet_student_t" or model_name == "linreg_beta_student_t" or model_name == "linreg_beta_horseshoe":
         # y is a vector[N] in the Stan code
         stan_data = {
             "N": X_train.shape[0],
@@ -63,7 +63,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
         }
 
     # Model-specific extensions
-    if model_name == "dirichlet_horseshoe" or model_name == "dirichlet_horseshoe_tanh" or model_name == "dirichlet_horseshoe_tanh_nodewise_lambda":
+    if model_name == "dirichlet_horseshoe" or model_name == "dirichlet_horseshoe_tanh" or model_name == "dirichlet_horseshoe_tanh_nodewise_lambda" or model_name == "beta_horseshoe_tanh":
         stan_data.update({
             'p_0': 4,
             'a': 2.0,
@@ -82,7 +82,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'gamma': 1e-3,
         })
         
-    elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "dirichlet_student_t_tanh_nodewise_lambda":
+    elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "dirichlet_student_t_tanh_nodewise_lambda" or model_name == "beta_student_t_tanh":
         stan_data.update({
             'alpha': 0.1 * np.ones(args.p),
             # Disse trengs når vi har med regulariseringen

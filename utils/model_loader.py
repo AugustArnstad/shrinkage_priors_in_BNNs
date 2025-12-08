@@ -40,6 +40,8 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Dirichlet Horseshoe tanh": ('dirichlet_horseshoe_tanh_prior', 'dirichlet_horseshoe_tanh'),
         "Dirichlet Student T tanh": ('dirichlet_student_t_tanh_prior', 'dirichlet_student_t_tanh'),
         "Dirichlet Gamma tanh": ('dirichlet_gamma_prior_tanh', 'dirichlet_gamma_tanh'),
+        "Beta Horseshoe tanh": ('beta_horseshoe_tanh_prior', 'beta_horseshoe_tanh'),
+        "Beta Student T tanh": ('beta_student_t_tanh_prior', 'beta_student_t_tanh'),
         "Pred CP tanh": ('pcp_prior_tanh','pcp_tanh'),
         
         "Regularized Horseshoe tanh nodewise": ('regularized_horseshoe_tanh_nodewise_lambda_prior', 'regularized_horseshoe_tanh_nodewise_lambda'),
@@ -50,6 +52,9 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Linreg Regularized Horseshoe": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe'),
         "Linreg Dirichlet Horseshoe": ('linreg_dirichlet_horseshoe_prior', 'linreg_dirichlet_horseshoe'),
         "Linreg Dirichlet Student T": ('linreg_dirichlet_student_t_prior', 'linreg_dirichlet_student_t'),
+                
+        "Linreg Beta Horseshoe": ('linreg_beta_horseshoe_prior', 'linreg_beta_horseshoe'),
+        "Linreg Beta Student T": ('linreg_beta_student_t_prior', 'linreg_beta_student_t'),
         
         "Linreg Regularized Horseshoe Centered": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe_centered'),
         "Linreg Dirichlet Horseshoe Centered": ('linreg_dirichlet_horseshoe_prior', 'linreg_dirichlet_horseshoe_centered'),
