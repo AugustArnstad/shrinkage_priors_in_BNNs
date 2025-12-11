@@ -32,6 +32,8 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Dirichlet Horseshoe": ('dirichlet_horseshoe_prior', 'dirichlet_horseshoe'),
         "Dirichlet Horseshoe full": ('dirichlet_horseshoe_prior_full', 'dirichlet_horseshoe_full'),
         "Dirichlet Student T": ('dirichlet_student_t_prior', 'dirichlet_student_t'),
+        "Beta Horseshoe": ('beta_horseshoe_prior', 'beta_horseshoe'),
+        "Beta Student T": ('beta_student_t_prior', 'beta_student_t'),
         "Dirichlet Gamma": ('dirichlet_gamma_prior', 'dirichlet_gamma'),
         "Pred CP": ('pcp_prior', 'pcp'),
         
