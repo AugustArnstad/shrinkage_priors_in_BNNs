@@ -63,7 +63,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
         }
 
     # Model-specific extensions
-    if model_name == "dirichlet_horseshoe" or model_name == "dirichlet_horseshoe_tanh" or model_name == "dirichlet_horseshoe_tanh_nodewise_lambda" or model_name == "beta_horseshoe" or model_name == "beta_horseshoe_tanh":
+    if model_name == "dirichlet_horseshoe" or model_name == "dirichlet_horseshoe_tanh" or model_name == "dirichlet_horseshoe_nodewise_lambda" or model_name == "dirichlet_horseshoe_tanh_nodewise_lambda" or model_name == "beta_horseshoe" or model_name == "beta_horseshoe_tanh" or model_name == "beta_horseshoe_tanh_nodewise_lambda" or model_name == "beta_horseshoe_nodewise_lambda":
         stan_data.update({
             'p_0': 4,
             'a': 2.0,
@@ -82,7 +82,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'gamma': 1e-3,
         })
         
-    elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "dirichlet_student_t_tanh_nodewise_lambda" or model_name == "beta_student_t" or model_name == "beta_student_t_tanh":
+    elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "dirichlet_student_t_nodewise_lambda" or model_name == "dirichlet_student_t_tanh_nodewise_lambda" or model_name == "beta_student_t" or model_name == "beta_student_t_tanh" or model_name == "beta_student_t_tanh_nodewise_lambda" or model_name == "beta_student_t_nodewise_lambda":
         stan_data.update({
             'alpha': 0.1 * np.ones(args.p),
             # Disse trengs når vi har med regulariseringen
@@ -90,7 +90,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'a': 2.0,
             'b': 4.0,
         })
-    
+        
     elif model_name == "dirichlet_gamma" or model_name == "dirichlet_gamma_tanh":
         stan_data.update({
             'alpha': 0.1 * np.ones(args.p),
@@ -119,7 +119,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'tau': 0.5,
         })
 
-    elif model_name == "regularized_horseshoe" or model_name == "regularized_horseshoe_tanh" or model_name == "regularized_horseshoe_tanh_nodewise_lambda":
+    elif model_name == "regularized_horseshoe" or model_name == "regularized_horseshoe_tanh" or model_name == "regularized_horseshoe_tanh_nodewise_lambda" or model_name == "regularized_horseshoe_nodewise_lambda":
         stan_data.update({
             'p_0': 4,
             'a': 2.0,
