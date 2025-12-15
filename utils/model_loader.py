@@ -49,6 +49,8 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Regularized Horseshoe tanh nodewise": ('regularized_horseshoe_tanh_nodewise_lambda_prior', 'regularized_horseshoe_tanh_nodewise_lambda'),
         "Dirichlet Horseshoe tanh nodewise": ('dirichlet_horseshoe_tanh_nodewise_lambda_prior', 'dirichlet_horseshoe_tanh_nodewise_lambda'),
         "Dirichlet Student T tanh nodewise": ('dirichlet_student_t_tanh_nodewise_lambda_prior', 'dirichlet_student_t_tanh_nodewise_lambda'),
+        "Beta Horseshoe tanh nodewise": ('beta_horseshoe_tanh_nodewise_lambda_prior', 'beta_horseshoe_tanh_nodewise_lambda'),
+        "Beta Student T tanh nodewise": ('beta_student_t_tanh_nodewise_lambda_prior', 'beta_student_t_tanh_nodewise_lambda'),
         
         "Linreg Gaussian": ('linreg_gaussian_prior', 'linreg_gaussian'),                
         "Linreg Regularized Horseshoe": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe'),
