@@ -20,7 +20,7 @@ parser.add_argument("--standardize", action="store_true", help="Standardize data
 args = parser.parse_args()
 
 # Last inn data
-X_train, X_test, y_train, y_test = load_abalone_regression_data(standardized=args.standardize, frac=0.2)
+X_train, X_test, y_train, y_test = load_abalone_regression_data(standardized=args.standardize, frac=0.5)
 N, p = X_train.shape
 seed = 42
 data_type = "abalone"

@@ -813,3 +813,39 @@ def load_linreg_dataset(
 
     return X_train, X_test, y_train, y_test, meta, X, y
 
+def make_grouped_duplicates_data(
+    n=120,            # samples
+    G=20,             # number of groups
+    m=20,             # variables per group => p = G*m
+    k_signal=6,       # number of groups that contain a true signal
+    rho=0.995,        # within-group correlation ~ rho (close to 1 is key)
+    beta_signal=2.0,  # true effect size
+    sigma=1.0,        # noise sd
+    test_size=0.2,
+    seed=1
+):
+    rng = np.random.default_rng(seed)
+    p = G * m
+
+    # latent factor per group
+    Z = rng.normal(size=(n, G))
+
+    X = np.zeros((n, p))
+    for g in range(G):
+        # within group: x_{g,j} = sqrt(rho)*Z_g + sqrt(1-rho)*eps_{g,j}
+        eps = rng.normal(size=(n, m))
+        X[:, g*m:(g+1)*m] = np.sqrt(rho) * Z[:, [g]] + np.sqrt(1-rho) * eps
+
+    # true beta: one "winner" per signal group
+    beta = np.zeros(p)
+    signal_groups = rng.choice(G, size=k_signal, replace=False)
+    for g in signal_groups:
+        jstar = g*m + rng.integers(m)          # one variable in the group
+        beta[jstar] = beta_signal * rng.choice([-1, 1])
+
+    y = X @ beta + rng.normal(scale=sigma, size=n)
+    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=seed)
+    # return X_train, X_test, y_train, y_test, beta, signal_groups
+    return X, y, beta, signal_groups
+
+

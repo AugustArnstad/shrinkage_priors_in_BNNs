@@ -15,7 +15,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             "p_0": 4,
             "a": 2.0,
             "b": 4.0,
-            "alpha": 0.1 * np.ones(args.p),
+            "alpha": 0.01 * np.ones(args.p),
         }
         return stan_data
     
@@ -31,11 +31,16 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
     
     if model_name == "linreg_regularized_horseshoe":
         stan_data = {
-            'p_0': 4,
-            'a': 2.0,
-            'b': 4.0,
+            "N": X_train.shape[0],
+            "P": args.p,
+            "X": X_train,
+            "y": y_train,   # vector[N]
+            "p_0": 4,
+            "a": 2.0,
+            "b": 4.0,
         }
         return stan_data
+
 
     # Shared basic data
     if task != "prior":
@@ -68,7 +73,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'p_0': 4,
             'a': 2.0,
             'b': 4.0,
-            'alpha': 0.1 * np.ones(args.p),
+            'alpha': 0.01 * np.ones(args.p),
             'gamma': 1e-3,
         })
     
@@ -84,7 +89,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
         
     elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "dirichlet_student_t_nodewise_lambda" or model_name == "dirichlet_student_t_tanh_nodewise_lambda" or model_name == "beta_student_t" or model_name == "beta_student_t_tanh" or model_name == "beta_student_t_tanh_nodewise_lambda" or model_name == "beta_student_t_nodewise_lambda":
         stan_data.update({
-            'alpha': 0.1 * np.ones(args.p),
+            'alpha': 0.01 * np.ones(args.p),
             # Disse trengs når vi har med regulariseringen
             'p_0': 4,
             'a': 2.0,
