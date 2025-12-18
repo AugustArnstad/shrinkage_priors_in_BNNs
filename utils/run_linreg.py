@@ -22,7 +22,7 @@ args = parser.parse_args()
 
 # Last inn data
 X_train, X_test, y_train, y_test, _, _, _ = load_linreg_dataset(
-    path=f"datasets/linreg/linreg_data_beta_dirichlet.npz",
+    path=f"datasets/linreg/linreg_data_beta_dirichlet_2.npz",
     test_fraction=0.2,
     seed=123,
 )
