@@ -34,6 +34,10 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Dirichlet Student T": ('dirichlet_student_t_prior', 'dirichlet_student_t'),
         "Beta Horseshoe": ('beta_horseshoe_prior', 'beta_horseshoe'),
         "Beta Student T": ('beta_student_t_prior', 'beta_student_t'),
+        "Dirichlet tau": ('dirichlet_tau_prior', 'dirichlet_tau'),
+        "Beta tau": ('beta_tau_prior', 'beta_tau'),
+        "Dirichlet": ('dirichlet_prior', 'dirichlet'),
+        "Beta": ('beta_prior', 'beta'),
         "Dirichlet Gamma": ('dirichlet_gamma_prior', 'dirichlet_gamma'),
         "Pred CP": ('pcp_prior', 'pcp'),
         
@@ -44,6 +48,10 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         "Dirichlet Gamma tanh": ('dirichlet_gamma_prior_tanh', 'dirichlet_gamma_tanh'),
         "Beta Horseshoe tanh": ('beta_horseshoe_tanh_prior', 'beta_horseshoe_tanh'),
         "Beta Student T tanh": ('beta_student_t_tanh_prior', 'beta_student_t_tanh'),
+        "Dirichlet tau tanh": ('dirichlet_tau_tanh_prior', 'dirichlet_tau_tanh'),
+        "Beta tau tanh": ('beta_tau_tanh_prior', 'beta_tau_tanh'),
+        "Dirichlet tanh": ('dirichlet_tanh_prior', 'dirichlet_tanh'),
+        "Beta tanh": ('beta_tanh_prior', 'beta_tanh'),
         "Pred CP tanh": ('pcp_prior_tanh','pcp_tanh'),
         
         "Regularized Horseshoe tanh nodewise": ('regularized_horseshoe_tanh_nodewise_lambda_prior', 'regularized_horseshoe_tanh_nodewise_lambda'),

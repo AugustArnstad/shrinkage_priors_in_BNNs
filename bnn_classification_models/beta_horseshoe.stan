@@ -1,5 +1,5 @@
 // =====================
-// Prior predictive model with non-centered parameterization
+// Prior predictive model with non-centered parameterization (Classification Version)
 // =====================
 
 functions {
@@ -15,11 +15,11 @@ functions {
     int H = cols(W_1);
     array[L] matrix[N, H] hidden;
 
-    hidden[1] = tanh(X * W_1 + rep_vector(1.0, N) * hidden_bias[1]);
+    hidden[1] = fmax((X * W_1 + rep_vector(1.0, N) * hidden_bias[1]), 0);
 
     if (L > 1) {
       for (l in 2:L)
-        hidden[l] = tanh(hidden[l - 1] * W_internal[l - 1] + rep_vector(1.0, N) * hidden_bias[l]);
+        hidden[l] = fmax((hidden[l - 1] * W_internal[l - 1] + rep_vector(1.0, N) * hidden_bias[l]), 0);
     }
 
     matrix[N, output_nodes] output = hidden[L] * W_L;
@@ -33,14 +33,14 @@ data {
   int<lower=1> P;
   matrix[N, P] X;
   int<lower=1> output_nodes;
-  matrix[N, output_nodes] y;
-  
+  array[N] int<lower=1, upper=output_nodes> y;
+
   int<lower=1> L;
   int<lower=1> H;
-  
+
   int<lower=1> N_test;
   matrix[N_test, P] X_test;
-  
+
   int<lower=1> p_0;
   real<lower=0> a;
   real<lower=0> b;
@@ -49,7 +49,7 @@ data {
 }
 
 parameters {
-  vector<lower=0, upper=50>[H] lambda_data;
+  array[H] vector<lower=0, upper=50>[P] lambda_data;
   array[H] simplex[P] phi_data;
   real<lower=1e-6> tau;
   vector<lower=0>[H] c_sq;
@@ -60,29 +60,33 @@ parameters {
   array[L] row_vector[H] hidden_bias;
   matrix[H, output_nodes] W_L;
   row_vector[output_nodes] output_bias;
-  real<lower=1e-6> sigma;
 }
 
 transformed parameters {
   real<lower=1e-6> tau_0 = (p_0 * 1.0) / (P - p_0) * 1 / sqrt(N);
 
-  vector<lower=0>[H] lambda_tilde_data;
+  array[H] vector<lower=0>[P] lambda_tilde_data;
+  //array[H] vector<lower=0>[P] phi_tilde_data;
 
   for (j in 1:H) {
-    lambda_tilde_data[j] = fmax(1e-12, c_sq[j] * square(lambda_data[j]) /
-                              (c_sq[j] + square(lambda_data[j]) * square(tau)));
+    for (i in 1:P) {
+      lambda_tilde_data[j][i] = fmax(1e-12, c_sq[j] * square(lambda_data[j][i]) /
+                                (c_sq[j] + square(lambda_data[j][i]) * square(tau)));
+      //phi_tilde_data[j][i] = P * phi_data[j][i];
+      //phi_tilde_data[j][i] = phi_data[j][i];
+    }
   }
 
   matrix[P, H] W_1;
   for (j in 1:H) {
     for (i in 1:P) {
-      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j]) * sqrt(phi_data[j][i]));
+      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[j][i]) * sqrt(phi_data[j][i]));
       W_1[i, j] = stddev * W1_raw[i, j];
     }
   }
 
-  matrix[N, output_nodes] output = nn_predict(X, 
-                                W_1, W_internal, hidden_bias, 
+  matrix[N, output_nodes] output = nn_predict(X,
+                                W_1, W_internal, hidden_bias,
                                 W_L, output_bias, L);
 }
 
@@ -111,12 +115,9 @@ model {
     W_L[, j] ~ normal(0, 1);
 
   output_bias ~ normal(0, 1);
-  sigma ~ inv_gamma(3, 2);
 
-  // Likelihood
   for (n in 1:N)
-    for (j in 1:output_nodes)
-      y[n, j] ~ normal(output[n, j], sigma);
+    y[n] ~ categorical_logit(to_vector(output[n]));
 }
 
 generated quantities {
@@ -130,8 +131,17 @@ generated quantities {
     output_bias,
     L
   );
-  matrix[N_test, output_nodes] output_test_rng;
-  for (n in 1:N_test)
-    for (j in 1:output_nodes)
-      output_test_rng[n, j] = normal_rng(output_test[n, j], sigma);
-}
+
+  matrix[N_test, output_nodes] prob_test;
+  array[N_test] int pred_test;
+
+  for (n in 1:N_test) {
+    vector[output_nodes] probs = softmax(to_vector(output_test[n]));
+    prob_test[n] = to_row_vector(probs);
+    pred_test[n] = categorical_rng(probs);
+  }
+
+  vector[N] log_lik;
+  for (n in 1:N)
+    log_lik[n] = categorical_logit_lpmf(y[n] | to_vector(output[n]));
+} 
