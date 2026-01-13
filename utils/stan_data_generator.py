@@ -77,6 +77,25 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'gamma': 1e-3,
         })
     
+    elif model_name == "dirichlet_horseshoe_nodewise" or model_name == "dirichlet_horseshoe_tanh_nodewise" or model_name == "beta_horseshoe_nodewise" or model_name == "beta_horseshoe_tanh_nodewise":
+        stan_data.update({
+            'p_0': 4,
+            'a': 2.0,
+            'b': 4.0,
+            'alpha': 0.1 * np.ones(args.p),
+            'gamma': 1e-3,
+        })
+
+    elif model_name == "dirichlet_horseshoe_tanh_L2" or model_name == "dirichlet_student_t_tanh_L2" or model_name == "beta_horseshoe_tanh_L2" or model_name == "beta_student_t_tanh_L2":
+        stan_data.update({
+            'p_0': 4,
+            'a': 2.0,
+            'b': 4.0,
+            'alpha': 0.1 * np.ones(args.p),
+            'alpha_h': 0.1 * np.ones(args.H),
+            'gamma': 1e-3,
+        })
+    
     elif model_name == "dirichlet_tau" or model_name == "dirichlet_tau_tanh" or model_name == "beta_tau" or model_name == "beta_tau_tanh":
         stan_data.update({
             'p_0': 4,
@@ -98,6 +117,15 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
         })
         
     elif model_name == "dirichlet_student_t" or model_name == "dirichlet_student_t_tanh" or model_name == "beta_student_t" or model_name == "beta_student_t_tanh":
+        stan_data.update({
+            'alpha': 0.1 * np.ones(args.p),
+            # Disse trengs når vi har med regulariseringen
+            'p_0': 4,
+            'a': 2.0,
+            'b': 4.0,
+        })
+    
+    elif model_name == "dirichlet_student_t_nodewise" or model_name == "dirichlet_student_t_tanh_nodewise" or model_name == "beta_student_t_nodewise" or model_name == "beta_student_t_tanh_nodewise":
         stan_data.update({
             'alpha': 0.1 * np.ones(args.p),
             # Disse trengs når vi har med regulariseringen
