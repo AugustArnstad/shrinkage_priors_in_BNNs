@@ -26,14 +26,13 @@ parser.add_argument("--output_dir", type=str, default="results", help="Max numbe
 args = parser.parse_args()
 
 #data_dir = f"datasets/friedman"
-data_dir = f"datasets/friedman"
+data_dir = f"datasets/friedman_correlated"
 results_dir = args.output_dir 
 
 warmup = args.warmup
 sample = args.sample
 H = 16 
-L = 1 
-
+L = 1
 files = sorted(f for f in os.listdir(data_dir) if f.endswith(".npz") and re.match(args.pattern, f))
 processed = 0
 
