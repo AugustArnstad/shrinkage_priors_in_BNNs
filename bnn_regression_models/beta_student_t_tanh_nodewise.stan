@@ -45,7 +45,6 @@ data {
   real<lower=0> a;
   real<lower=0> b;
   vector<lower=0>[P] alpha;
-  real<lower=0, upper=1> gamma;
 }
 
 parameters {
