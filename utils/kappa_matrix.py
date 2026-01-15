@@ -164,7 +164,7 @@ def extract_model_draws(
     fit_dict,
     model: str,
     *,
-    lambda_effective_candidates = ("lambda_tilde", "lambda_tilde_data"),
+    lambda_effective_candidates = ("lambda_tilde", "lambda_tilde_data", 'lambda_tilde_node'),
     lambda_raw_candidates       = ("lambda", "lambda_data"),
     include_phi_for_dirichlet: bool = True,
     phi_name: str = "phi_data",
@@ -276,7 +276,11 @@ def extract_model_draws(
         for nm in lambda_effective_candidates:
             arr = _stan_var_or_none(nm)
             if arr is not None:
-                lam_eff = _coerce_DHp(arr, D, H, p)
+                if model in ["Dirichlet Horseshoe tanh nodewise", "Dirichlet Student T tanh nodewise", "Beta Horseshoe tanh nodewise", "Beta Student T tanh nodewise"]:
+                    arr2 = arr[:, :, None].repeat(p, axis=2)
+                    lam_eff = _coerce_DHp(arr2, D, H, p)
+                else:
+                    lam_eff = _coerce_DHp(arr, D, H, p)
                 break
 
     # (2) Raw lambda (half-Cauchy)

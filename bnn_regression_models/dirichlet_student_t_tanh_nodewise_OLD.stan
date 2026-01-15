@@ -48,8 +48,8 @@ data {
 }
 
 parameters {
-  vector<lower=0, upper=50>[H] lambda_node;   // one per hidden unit (node)
-  array[H] simplex[P] phi_data;               // still per node, across inputs
+  vector<lower=0, upper=50>[P] lambda_data;
+  array[H] simplex[P] phi_data;
   real<lower=1e-6> tau;
   vector<lower=0>[H] c_sq;
 
@@ -62,40 +62,42 @@ parameters {
   real<lower=1e-6> sigma;
 }
 
-
 transformed parameters {
   real<lower=1e-6> tau_0 = (p_0 * 1.0) / (P - p_0) * 1 / sqrt(N);
 
-  vector<lower=0>[H] lambda_tilde_node;
+  vector<lower=0>[P] lambda_tilde_data;
+  //array[H] vector<lower=0>[P] phi_tilde_data;
 
   for (j in 1:H) {
-    lambda_tilde_node[j] = fmax(
-      1e-12,
-      c_sq[j] * square(lambda_node[j]) /
-      (c_sq[j] + square(lambda_node[j]) * square(tau))
-    );
+    for (i in 1:P) {
+      lambda_tilde_data[i] = fmax(1e-12, c_sq[j] * square(lambda_data[i]) /
+                                (c_sq[j] + square(lambda_data[i]) * square(tau)));
+      //phi_tilde_data[j][i] = P * phi_data[j][i];
+      //phi_tilde_data[j][i] = phi_data[j][i];
+    }
   }
 
   matrix[P, H] W_1;
   for (j in 1:H) {
     for (i in 1:P) {
-      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_node[j]) * sqrt(phi_data[j][i]));
+      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_data[i]) * sqrt(phi_data[j][i]));
       W_1[i, j] = stddev * W1_raw[i, j];
     }
   }
 
-  matrix[N, output_nodes] output = nn_predict(X, W_1, W_internal, hidden_bias, W_L, output_bias, L);
+  matrix[N, output_nodes] output = nn_predict(X, 
+                                W_1, W_internal, hidden_bias, 
+                                W_L, output_bias, L);
 }
-
 
 model {
   tau ~ cauchy(0, tau_0);
   c_sq ~ inv_gamma(a, b);
 
-  lambda_node ~ student_t(3, 0, 1);
-  for (j in 1:H)
+  lambda_data ~ student_t(3, 0, 1);
+  for (j in 1:H) {
     phi_data[j] ~ dirichlet(alpha);
-
+  }
   to_vector(W1_raw) ~ normal(0, 1);
 
   if (L > 1) {
