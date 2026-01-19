@@ -29,7 +29,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
         }
         return stan_data
     
-    if model_name == "linreg_regularized_horseshoe":
+    if model_name in ["linreg_regularized_horseshoe", "linreg_regularized_horseshoe_scaled"]:
         stan_data = {
             "N": X_train.shape[0],
             "P": args.p,
@@ -76,6 +76,7 @@ def make_stan_data(model_name, task, X_train, y_train, X_test, args):
             'alpha': 0.1 * np.ones(args.p),
             'gamma': 1e-3,
         })
+        print(stan_data['output_nodes'])
     
     elif model_name == "dirichlet_horseshoe_nodewise" or model_name == "dirichlet_horseshoe_tanh_nodewise" or model_name == "beta_horseshoe_nodewise" or model_name == "beta_horseshoe_tanh_nodewise":
         stan_data.update({

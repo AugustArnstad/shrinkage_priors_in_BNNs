@@ -66,6 +66,7 @@ def get_model_fits(config, results_dir, models=None, include_prior=True, include
         
         "Linreg Gaussian": ('linreg_gaussian_prior', 'linreg_gaussian'),                
         "Linreg Regularized Horseshoe": ('linreg_regularized_horseshoe_prior', 'linreg_regularized_horseshoe'),
+        "Linreg Regularized Horseshoe scaled": ('linreg_regularized_horseshoe_scaled_prior', 'linreg_regularized_horseshoe_scaled'),
         "Linreg Dirichlet Horseshoe": ('linreg_dirichlet_horseshoe_prior', 'linreg_dirichlet_horseshoe'),
         "Linreg Dirichlet Student T": ('linreg_dirichlet_student_t_prior', 'linreg_dirichlet_student_t'),
                 
