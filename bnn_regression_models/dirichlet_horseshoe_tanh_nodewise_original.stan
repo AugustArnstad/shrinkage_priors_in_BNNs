@@ -49,16 +49,14 @@ data {
 }
 
 parameters {
-  // vector<lower=0, upper=50>[H] lambda_node;   // one per hidden unit (node)
-  vector<lower=0>[H] lambda_node;   
+  vector<lower=0, upper=50>[H] lambda_node;   // one per hidden unit (node)
   array[H] simplex[P] phi_data;               // still per node, across inputs
   real<lower=1e-6> tau;
   vector<lower=0>[H] c_sq;
 
   matrix[P, H] W1_raw;
 
-  // array[max(L - 1, 1)] matrix[H, H] W_internal;
-  array[L-1] matrix[H, H] W_internal;
+  array[max(L - 1, 1)] matrix[H, H] W_internal;
   array[L] row_vector[H] hidden_bias;
   matrix[H, output_nodes] W_L;
   row_vector[output_nodes] output_bias;
@@ -71,28 +69,18 @@ transformed parameters {
 
   vector<lower=0>[H] lambda_tilde_node;
 
-  // for (j in 1:H) {
-    // lambda_tilde_node[j] = fmax(
-      // 1e-12,
-      // c_sq[j] * square(lambda_node[j]) /
-      // (c_sq[j] + square(lambda_node[j]) * square(tau))
-    // );
-  // }
   for (j in 1:H) {
-    lambda_tilde_node[j] = c_sq[j] * square(lambda_node[j]) /
-                          (c_sq[j] + square(lambda_node[j]) * square(tau));
+    lambda_tilde_node[j] = fmax(
+      1e-12,
+      c_sq[j] * square(lambda_node[j]) /
+      (c_sq[j] + square(lambda_node[j]) * square(tau))
+    );
   }
 
   matrix[P, H] W_1;
-  // for (j in 1:H) {
-    // for (i in 1:P) {
-      // real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_node[j]) * sqrt(phi_data[j][i])) / sqrt(P);
-      // W_1[i, j] = stddev * W1_raw[i, j];
-    // }
-  // }
   for (j in 1:H) {
     for (i in 1:P) {
-      real stddev = tau * sqrt(lambda_tilde_node[j]) * sqrt(phi_data[j][i]) / sqrt(P);
+      real stddev = fmax(1e-12, tau * sqrt(lambda_tilde_node[j]) * sqrt(phi_data[j][i])) / sqrt(P);
       W_1[i, j] = stddev * W1_raw[i, j];
     }
   }
@@ -109,25 +97,24 @@ model {
   for (j in 1:H)
     phi_data[j] ~ dirichlet(alpha);
 
-  to_vector(W1_raw) ~ normal(0, 1/sqrt(H));
+  to_vector(W1_raw) ~ normal(0, 1);
 
   if (L > 1) {
     for (l in 1:(L - 1)) {
       for (j in 1:H) {
-        W_internal[l][, j] ~ normal(0, 1/sqrt(H));
+        W_internal[l][, j] ~ normal(0, 1);
       }
     }
   }
 
   for (l in 1:L)
-    hidden_bias[l] ~ normal(0, 1/sqrt(H));
+    hidden_bias[l] ~ normal(0, 1);
 
   for (j in 1:output_nodes)
-    W_L[, j] ~ normal(0, 1/sqrt(H));
+    W_L[, j] ~ normal(0, 1);
 
-  output_bias ~ normal(0, 1/sqrt(H));
-  // sigma ~ inv_gamma(3, 2);
-  sigma ~ lognormal(0, 0.5);
+  output_bias ~ normal(0, 1);
+  sigma ~ inv_gamma(3, 2);
 
   // Likelihood
   for (n in 1:N)

@@ -24,10 +24,10 @@ def run_regression_model(model_name, config_name, X_train, X_test, y_train, y_te
         chains=4,
         iter_sampling=args.samples,
         iter_warmup=args.burnin_samples,
-        adapt_delta=0.8,
+        adapt_delta=0.90,
         parallel_chains=4,
         show_console=False,
-        #max_treedepth = 12,
+        max_treedepth = 12,
     )
     
     if args.data_config == "uci": 
